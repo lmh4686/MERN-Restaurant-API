@@ -5,7 +5,7 @@ import bcrypt from 'bcrypt';
 import jwt from 'jsonwebtoken'
 import Admin from '../db/models/AdminModel.js';
 
-console.log('ADMINFUNCTION\n' + process.env.ENC_KEY)
+
 //Encryption config
 const encAlgorithm = 'aes-256-cbc'
 const encPrivateKey = crypto.scryptSync(process.env.ENC_KEY, 'SpecialSalt', 32)
@@ -78,7 +78,7 @@ export async function verifyCredentials(req, res, next) {
 export function validateBasicAuth(req, res, next) {
   let authHeader = req.headers['authorization'] ?? null
   if (authHeader == null ) {
-    res.status(403).json({error: 'Missing auth details'})
+    res.status(403).json({error: 'Missing Auth'})
   } 
   else if (authHeader.startsWith('Basic ')) {
     authHeader = authHeader.substring(5).trim()
