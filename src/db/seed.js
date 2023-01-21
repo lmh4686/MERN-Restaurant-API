@@ -41,21 +41,21 @@ const reservations = [
     "firstName" : "Simba",
     "lastName" : "Kim",
     "mobile": "156165126",
-    "date": new Date("2023-01-30T18:00Z"),
+    "date": new Date("2023-01-30T18:00"),
     "guestNumber": 5
 }},
   {table: sixSeaters[1]._id, guest: {
   "firstName" : "Rexy",
   "lastName" : "Rob",
   "mobile": "3564815",
-  "date": new Date("2023-01-30T18:00Z"),
+  "date": new Date("2023-01-30T18:00"),
   "guestNumber": 5
 }},
   {table: sixSeaters[2]._id, guest: {
   "firstName" : "Rexy",
   "lastName" : "Rob",
   "mobile": "3564815",
-  "date": new Date("2023-01-30T20:00Z"),
+  "date": new Date("2023-01-30T20:00"),
   "guestNumber": 5
 }}
 ]
