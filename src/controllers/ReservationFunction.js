@@ -1,12 +1,12 @@
 import Reservation from "../db/models/ReservationModel.js";
 import Table from '../db/models/TableModel.js'
 
-function manipulateMinutes(date, operator, minutes) {
+function manipulateMinutes(date, operator, hours) {
   switch (operator) {
     case 'plus':
-      return new Date(date.getTime() + minutes*60000)
+      return new Date(date.getTime() + 60*60000*hours)
     case 'minus':
-      return new Date(date.getTime() - minutes*60000)   
+      return new Date(date.getTime() - 60*60000*hours)   
     default:
       return new Error(`Given operator ${operator} is invalid operator`)
   }
@@ -19,8 +19,8 @@ function findDuplicateReservation(bookingInfo, reservations) {
 export async function getUnavailableTables(req, res, next) {
   const bookingInfo = req.body
   const dateFilteredReservations = await Reservation.find({
-    'guest.date': {$lt: manipulateMinutes(new Date(bookingInfo.date), 'plus', 90), 
-                   $gt: manipulateMinutes(new Date(bookingInfo.date), 'minus', 90)}
+    'guest.date': {$lt: manipulateMinutes(new Date(bookingInfo.date), 'plus', 5), 
+                   $gt: manipulateMinutes(new Date(bookingInfo.date), 'minus', 5)}
                   }).populate('table')
 
   if (dateFilteredReservations.length) {
