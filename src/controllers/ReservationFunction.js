@@ -1,7 +1,7 @@
 import Reservation from "../db/models/ReservationModel.js";
 import Table from '../db/models/TableModel.js'
 
-function manipulateMinutes(date, operator, hours) {
+function manipulateHours(date, operator, hours) {
   switch (operator) {
     case 'plus':
       return new Date(date.getTime() + 60*60000*hours)
@@ -18,9 +18,10 @@ function findDuplicateReservation(bookingInfo, reservations) {
 
 export async function getUnavailableTables(req, res, next) {
   const bookingInfo = req.body
+
   const dateFilteredReservations = await Reservation.find({
-    'guest.date': {$lt: manipulateMinutes(new Date(bookingInfo.date), 'plus', 5), 
-                   $gt: manipulateMinutes(new Date(bookingInfo.date), 'minus', 5)}
+    'guest.date': {$lt: manipulateHours(new Date(bookingInfo.date), 'plus', 5), 
+                   $gt: manipulateHours(new Date(bookingInfo.date), 'minus', 5)}
                   }).populate('table')
 
   if (dateFilteredReservations.length) {
@@ -29,10 +30,13 @@ export async function getUnavailableTables(req, res, next) {
       res.status(409).json({msg: `Same guest found!`})
     }
     else {
-      const unavailableTables = dateFilteredReservations.filter(
-        reservation => reservation.table.seats === bookingInfo.guestNumber 
-        || reservation.table.seats === bookingInfo.guestNumber +1
-        ).map(reservation => reservation.table)
+      const unavailableTables = dateFilteredReservations.filter(reservation => 
+        reservation.guest.date < manipulateHours(new Date(bookingInfo.date), 'plus', 1.5) &&
+        reservation.guest.date > manipulateHours(new Date(bookingInfo.date), 'minus', 1.5) 
+        ).filter(reservation => 
+          reservation.table.seats === bookingInfo.guestNumber || 
+          reservation.table.seats === bookingInfo.guestNumber+ 1
+          ).map(reservation => reservation.table)
 
       req.unavailableTables = unavailableTables
       next()
