@@ -22,7 +22,7 @@ export async function getUnavailableTables(req, res, next) {
     'guest.date': {$lt: manipulateMinutes(new Date(bookingInfo.date), 'plus', 90), 
                    $gt: manipulateMinutes(new Date(bookingInfo.date), 'minus', 90)}
                   }).populate('table')
-  
+
   if (dateFilteredReservations.length) {
     const duplicateReservation = findDuplicateReservation(bookingInfo, dateFilteredReservations)
     if (duplicateReservation) {
@@ -30,25 +30,36 @@ export async function getUnavailableTables(req, res, next) {
     }
     else {
       const unavailableTables = dateFilteredReservations.filter(
-      reservation => reservation.table.seats === bookingInfo.guestNumber || bookingInfo.guestNumber +1 
-        ).map(reservation => reservation.table)      
+        reservation => reservation.table.seats === bookingInfo.guestNumber 
+        || reservation.table.seats === bookingInfo.guestNumber +1
+        ).map(reservation => reservation.table)
+
       req.unavailableTables = unavailableTables
       next()
     } 
+  }else{
+    next()
   }
 }
 
 export async function getAvailableTable(req, res, next) {
-  const seatFilteredTables = await Table.find({seats: req.unavailableTables[0].seats})
-
-  const availableTable = seatFilteredTables.find(table => 
-    !req.unavailableTables.map(unavailableTable => unavailableTable.tableNumber).includes(table.tableNumber))
-  
-  if (!availableTable) {
-    res.status(406).json({msg: 'No available table found'})
+  if (!req.unavailableTables || !req.unavailableTables.length) {
+    const allTables = await Table.find()
+    req.availableTableId = allTables.find(
+      table => table.seats === req.body.guestNumber || table.seats === req.body.guestNumber + 1
+      )._id
+    next()
   }else {
-  req.tableId = availableTable._id
-  next()
+    const seatFilteredTables = await Table.find({seats: req.unavailableTables[0].seats})
+    const availableTable = seatFilteredTables.find(table => 
+      !req.unavailableTables.map(unavailableTable => unavailableTable.tableNumber).includes(table.tableNumber))
+    
+    if (!availableTable) {
+      res.status(406).json({msg: 'No available table found'})
+    }else {
+    req.availableTableId = availableTable._id
+    next()
+    }
   }
 }
 

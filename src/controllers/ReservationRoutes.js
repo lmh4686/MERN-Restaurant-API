@@ -17,10 +17,10 @@ router.get('/', async (req, res) => {
 //POST
 router.post('/', getUnavailableTables, getAvailableTable, async (req, res) => {
   const newBooking = await Reservation.create({
-    table: req.tableId,
+    table: req.availableTableId,
     guest: req.body
   })
-  res.status(201).json(newBooking)
+  res.status(201).send(await newBooking.populate({path: 'table', select: ['tableNumber', 'seats']}))
 })
 
 //GET BY MOBILE
