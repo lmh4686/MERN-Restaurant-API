@@ -37,21 +37,21 @@ await Admin.create({
 const sixSeaters = await Table.find({seats: 6})
 
 const reservations = [
-  {table: sixSeaters[0], guest: {
+  {table: sixSeaters[0]._id, guest: {
     "firstName" : "Simba",
     "lastName" : "Kim",
     "mobile": "156165126",
     "date": new Date("2023-01-30T18:00Z"),
     "guestNumber": 5
 }},
-  {table: sixSeaters[1], guest: {
+  {table: sixSeaters[1]._id, guest: {
   "firstName" : "Rexy",
   "lastName" : "Rob",
   "mobile": "3564815",
   "date": new Date("2023-01-30T18:00Z"),
   "guestNumber": 5
 }},
-  {table: sixSeaters[2], guest: {
+  {table: sixSeaters[2]._id, guest: {
   "firstName" : "Rexy",
   "lastName" : "Rob",
   "mobile": "3564815",
