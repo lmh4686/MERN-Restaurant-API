@@ -1,5 +1,5 @@
 import express from 'express'
-import { verifyJwt } from './AdminFunction.js'
+// import { verifyJwt } from './AdminFunction.js'
 import { 
   getUnavailableTables, 
   getAvailableTable,
@@ -27,7 +27,7 @@ router.post('/', getUnavailableTables, getAvailableTable, async (req, res) => {
 
 
 //UPDATE ONE BY ID
-ff
+
 
 //DELETE ONE BY ID
 

@@ -1,7 +1,6 @@
 import mongoose from "mongoose";
-import * as dotenv from 'dotenv'
 
-dotenv.config({path: '../.env', debug: true})
+console.log('DB\n' + process.env.DATABASE_URL)
 mongoose.set('strictQuery', true)
 
 async function dbConnect() {

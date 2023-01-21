@@ -27,7 +27,7 @@ export async function getUnavailableTables(req, res, next) {
   if (dateFilteredReservations.length) {
     const duplicateReservation = findDuplicateReservation(bookingInfo, dateFilteredReservations)
     if (duplicateReservation) {
-      res.status(409).json({msg: `Same guest found!`})
+      res.status(409).json({error: `Same guest found!`})
     }
     else {
       const unavailableTables = dateFilteredReservations.filter(reservation => 
@@ -59,7 +59,7 @@ export async function getAvailableTable(req, res, next) {
       !req.unavailableTables.map(unavailableTable => unavailableTable.tableNumber).includes(table.tableNumber))
     
     if (!availableTable) {
-      res.status(406).json({msg: 'No available table found'})
+      res.status(406).json({error: 'No available table found'})
     }else {
     req.availableTableId = availableTable._id
     next()
