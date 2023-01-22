@@ -5,7 +5,7 @@ const router = express.Router();
 
 //LOGIN
 router.post('/login', validateBasicAuth, verifyCredentials, generateAdminJWT, async (req, res) => {
-  res.send({jwt: req.jwt})
+  res.send({jwt: req.headers.jwt})
 })
 
 export default router
