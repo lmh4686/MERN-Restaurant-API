@@ -1,21 +1,21 @@
-import mongoose from "mongoose";
-import * as dotenv from 'dotenv'
+import mongoose from 'mongoose';
+import * as dotenv from 'dotenv';
 
-dotenv.config({path: '../.env', debug: true})
-mongoose.set('strictQuery', true)
+dotenv.config();
+mongoose.set('strictQuery', true);
 
 async function dbConnect() {
-  try{
+  try {
     await mongoose.connect(process.env.DATABASE_URL);
-    console.log('DB connected')
-  }catch(e) {
-    console.log(e)
+    console.log('DB connected');
+  } catch (e) {
+    console.log(e);
   }
 }
 
 async function dbClose() {
   await mongoose.connection.close();
-  console.log('DB disconnected')
+  console.log('DB disconnected');
 }
 
 export { dbConnect, dbClose };
