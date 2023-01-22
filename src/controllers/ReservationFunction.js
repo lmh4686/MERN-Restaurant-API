@@ -37,9 +37,8 @@ export async function getUnavailableTables(req, res, next) {
         reservation.guest.date > manipulateHours(new Date(bookingInfo.date), 'minus', 1.5) 
         ).filter(reservation => 
           reservation.table.seats === bookingInfo.guestNumber || 
-          reservation.table.seats === bookingInfo.guestNumber+ 1
+          reservation.table.seats === bookingInfo.guestNumber + 1
           ).map(reservation => reservation.table)
-
       req.unavailableTables = unavailableTables
       next()
     } 
@@ -51,7 +50,7 @@ export async function getUnavailableTables(req, res, next) {
 export async function getAvailableTable(req, res, next) {
   if (req.skipMiddleware) return next()
   
-  if (!req.unavailableTables || !req.unavailableTables.length) {
+  if (!req?.unavailableTables || !req.unavailableTables.length) {
     const allTables = await Table.find()
     req.availableTableId = allTables.find(
       table => table.seats === req.body.guestNumber || table.seats === req.body.guestNumber + 1
