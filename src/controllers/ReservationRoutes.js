@@ -9,6 +9,7 @@ import Reservation from '../db/models/ReservationModel.js'
 
 const router = express.Router()
 
+//
 //GET ALL RESERVATIONS
 router.get('/', verifyJwt, verifyCredentials, generateAdminJWT, async (req, res) => {
   const reservations = await Reservation.find().populate({path: 'table', select: ['tableNumber', 'seats']})
