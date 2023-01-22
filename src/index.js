@@ -8,7 +8,6 @@ import reservationRoutes from './controllers/ReservationRoutes.js'
 import adminRoute from './controllers/AdminRoute.js'
 
 
-console.log('INDEX \n' + process.env.JWT_SECRET)
 //SETUPS
 const app = express()
 
