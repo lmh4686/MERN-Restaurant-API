@@ -19,7 +19,11 @@ function findDuplicateReservation(bookingInfo, reservations) {
 }
 
 export async function getUnavailableTables(req, res, next) {
-  const bookingInfo = req.body;
+  if (req.skipMiddleware) return next();
+
+  const bookingInfo = req?.newGuestForm || req.body;
+  console.log('****', bookingInfo);
+
   const dateFilteredReservations = await Reservation.find({
     'guest.date': {
       $lt: manipulateHours(new Date(bookingInfo.date), 'plus', 5),
@@ -27,12 +31,11 @@ export async function getUnavailableTables(req, res, next) {
     },
   }).populate('table');
 
-  console.log('*****', req.body);
+  console.log('@@@@@', dateFilteredReservations);
   if (dateFilteredReservations.length) {
-    const duplicateReservation = findDuplicateReservation(
-      bookingInfo,
-      dateFilteredReservations
-    );
+    const duplicateReservation = req?.newGuestForm
+      ? null
+      : findDuplicateReservation(bookingInfo, dateFilteredReservations);
     if (duplicateReservation) {
       res.status(409).json({ error: `Same guest found!` });
     } else {
@@ -46,11 +49,10 @@ export async function getUnavailableTables(req, res, next) {
         )
         .filter(
           (reservation) =>
-            reservation.table.seats === bookingInfo.guestNumber ||
-            reservation.table.seats === bookingInfo.guestNumber + 1
+            reservation.table.seats == Number(bookingInfo.guestNumber) ||
+            reservation.table.seats == Number(bookingInfo.guestNumber) + 1
         )
         .map((reservation) => reservation.table);
-
       req.unavailableTables = unavailableTables;
       next();
     }
@@ -60,12 +62,14 @@ export async function getUnavailableTables(req, res, next) {
 }
 
 export async function getAvailableTable(req, res, next) {
+  if (req.skipMiddleware) return next();
+
   if (!req.unavailableTables || !req.unavailableTables.length) {
     const allTables = await Table.find();
     req.availableTableId = allTables.find(
       (table) =>
-        table.seats === req.body.guestNumber ||
-        table.seats === req.body.guestNumber + 1
+        table.seats === Number(req.body.guestNumber) ||
+        table.seats === Number(req.body.guestNumber + 1)
     )._id;
     next();
   } else {
@@ -85,5 +89,29 @@ export async function getAvailableTable(req, res, next) {
       req.availableTableId = availableTable._id;
       next();
     }
+  }
+}
+
+export async function updateGuestForm(req, res, next) {
+  try {
+    var existingReservation = await Reservation.findById(req.params.id);
+  } catch (e) {
+    return res.status(400).json({ error: 'Wrong type of ID provided' });
+  }
+  if (!existingReservation)
+    return res.status(404).json({ error: 'Reservation not found' });
+
+  const newGuestForm = req.body;
+  const existingGuestForm = existingReservation.guest;
+  req.newGuestForm = newGuestForm;
+
+  if (
+    newGuestForm.date != existingGuestForm.date ||
+    newGuestForm.guestNumber != existingGuestForm.guestNumber
+  ) {
+    next();
+  } else {
+    req.skipMiddleware = true;
+    next();
   }
 }

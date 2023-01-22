@@ -50,7 +50,7 @@ export function generateJWT(obj) {
 
 export async function generateAdminJWT(req, res, next ) {
   const encryptedAdminCredentials = encryptString(JSON.stringify(req.credentials))
-  req.jwt = generateJWT({data: encryptedAdminCredentials})
+  req.headers.jwt = generateJWT({data: encryptedAdminCredentials})
   next()
 }
 
