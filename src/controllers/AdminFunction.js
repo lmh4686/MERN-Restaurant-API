@@ -1,5 +1,8 @@
+// import * as dotenv from 'dotenv'
+// dotenv.config()
 import * as dotenv from 'dotenv'
 dotenv.config()
+console.log(process.env.ADMIN_PW)
 import crypto from 'crypto';
 import bcrypt from 'bcrypt';
 import jwt from 'jsonwebtoken'
