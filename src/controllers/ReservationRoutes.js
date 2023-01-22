@@ -22,7 +22,7 @@ router.post('/', getUnavailableTables, getAvailableTable, async (req, res) => {
     table: req.availableTableId,
     guest: req.body
   })
-  console.log(typeof newBooking.guest.date)
+
   res.status(201).send(await newBooking.populate({path: 'table', select: ['tableNumber', 'seats']}))
 })
 
@@ -51,7 +51,15 @@ router.put('/:id',
 )
 
 //DELETE ONE BY ID
-
+router.delete('/:id', verifyJwt, verifyCredentials, generateAdminJWT, async (req, res) => {
+  try{
+   const deletedReservation = await Reservation.findByIdAndDelete(req.params.id, {returnDocument: 'after'})
+   .populate({path: 'table', select: ['tableNumber', 'seats']})
+   deletedReservation ? res.send(deletedReservation) : res.status(404).send({error: "No reservation found"})
+  }catch (e) {
+    res.status(400).send({error: 'Wrong ID format provided.'})
+  }
+})
 
 export default router
 
