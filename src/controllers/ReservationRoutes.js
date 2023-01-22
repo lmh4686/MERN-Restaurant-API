@@ -13,6 +13,7 @@ import Reservation from '../db/models/ReservationModel.js';
 
 const router = express.Router();
 
+//
 //GET ALL RESERVATIONS
 router.get(
   '/',
