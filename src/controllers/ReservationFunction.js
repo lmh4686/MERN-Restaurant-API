@@ -22,7 +22,8 @@ export async function getUnavailableTables(req, res, next) {
   if (req.skipMiddleware) return next();
 
   const bookingInfo = req?.newGuestForm || req.body;
-  console.log('****', bookingInfo);
+
+  bookingInfo.guestNumber = Number(bookingInfo.guestNumber);
 
   const dateFilteredReservations = await Reservation.find({
     'guest.date': {
@@ -31,7 +32,6 @@ export async function getUnavailableTables(req, res, next) {
     },
   }).populate('table');
 
-  console.log('@@@@@', dateFilteredReservations);
   if (dateFilteredReservations.length) {
     const duplicateReservation = req?.newGuestForm
       ? null
@@ -56,27 +56,16 @@ export async function getUnavailableTables(req, res, next) {
       req.unavailableTables = unavailableTables;
       next();
     }
-    else {
-      const unavailableTables = dateFilteredReservations.filter(reservation => 
-        reservation.guest.date < manipulateHours(new Date(bookingInfo.date), 'plus', 1.5) &&
-        reservation.guest.date > manipulateHours(new Date(bookingInfo.date), 'minus', 1.5) 
-        ).filter(reservation => 
-          reservation.table.seats === bookingInfo.guestNumber || 
-          reservation.table.seats === bookingInfo.guestNumber + 1
-          ).map(reservation => reservation.table)
-      req.unavailableTables = unavailableTables
-      next()
-    } 
-  }else{
-    next()
+  } else {
+    next();
   }
 }
 
 export async function getAvailableTable(req, res, next) {
-  if (req.skipMiddleware) return next()
-  
+  if (req.skipMiddleware) return next();
+
   if (!req?.unavailableTables || !req.unavailableTables.length) {
-    const allTables = await Table.find()
+    const allTables = await Table.find();
     req.availableTableId = allTables.find(
       (table) =>
         table.seats === Number(req.body.guestNumber) ||
