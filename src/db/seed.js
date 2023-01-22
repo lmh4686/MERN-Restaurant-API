@@ -15,7 +15,7 @@ await Table.deleteMany()
 console.log('Table deleted')
 await Reservation.deleteMany()
 console.log('Table deleted')
-
+  
 const tables = []
 
 function pushTable(seats, amount) {
