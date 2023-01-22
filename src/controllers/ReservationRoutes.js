@@ -1,5 +1,5 @@
 import express from 'express'
-// import { verifyJwt } from './AdminFunction.js'
+import { verifyJwt } from './AdminFunction.js' //recently uncommented.
 import { 
   getUnavailableTables, 
   getAvailableTable,
