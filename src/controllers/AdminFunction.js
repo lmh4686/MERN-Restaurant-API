@@ -1,6 +1,5 @@
 import * as dotenv from 'dotenv'
 dotenv.config()
-console.log(process.env.ADMIN_PW)
 import crypto from 'crypto';
 import bcrypt from 'bcrypt';
 import jwt from 'jsonwebtoken'
@@ -13,7 +12,7 @@ const encPrivateKey = crypto.scryptSync(process.env.ENC_KEY, 'SpecialSalt', 32)
 const encIV = crypto.scryptSync(process.env.ENC_IV, 'SpecialSalt', 16)
 let cipher = crypto.createCipheriv(encAlgorithm, encPrivateKey, encIV)
 let decipher = crypto.createDecipheriv(encAlgorithm, encPrivateKey, encIV)
-ff
+
 //Encrypt & Decrypt functions
 export function encryptString(data) {
   var cipher = crypto.createCipheriv(encAlgorithm, encPrivateKey, encIV)

@@ -12,6 +12,7 @@ const router = express.Router()
 //GET ALL RESERVATIONS
 router.get('/', verifyJwt, verifyCredentials, generateAdminJWT, async (req, res) => {
   const reservations = await Reservation.find().populate({path: 'table', select: ['tableNumber', 'seats']})
+  reservations.sort((a, b) => a.guest.date - b.guest.date)
   res.send(reservations)
 })
 
