@@ -1,5 +1,5 @@
-import dotenv from 'dotenv'
-dotenv.config({path: '../../.env'})
+import * as dotenv from 'dotenv'
+dotenv.config()
 
 import { dbConnect, dbClose } from "./db.js";
 import Admin from "./models/AdminModel.js";
