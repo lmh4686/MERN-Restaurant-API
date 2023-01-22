@@ -10,7 +10,7 @@ import Reservation from '../db/models/ReservationModel.js'
 const router = express.Router()
 
 //GET ALL RESERVATIONS
-router.get('/',verifyJwt, verifyCredentials, generateAdminJWT, async (req, res) => {
+router.get('/', verifyJwt, verifyCredentials, generateAdminJWT, async (req, res) => {
   const reservations = await Reservation.find().populate({path: 'table', select: ['tableNumber', 'seats']})
   res.send(reservations)
 })
@@ -25,7 +25,12 @@ router.post('/', getUnavailableTables, getAvailableTable, async (req, res) => {
 })
 
 //GET BY MOBILE
+router.get('/:mobile', verifyJwt, verifyCredentials, generateAdminJWT, async (req, res) => {
+  const reservations = await Reservation.find({'guest.mobile': req.params.mobile})
+  .populate({path: 'table', select: ['tableNumber', 'seats']})
 
+  res.send(reservations)
+})
 
 //UPDATE ONE BY ID
 
