@@ -1,4 +1,6 @@
-import mongoose from "mongoose";
+import dotenv from 'dotenv'
+dotenv.config({path: '../../.env'})
+
 import { dbConnect, dbClose } from "./db.js";
 import Admin from "./models/AdminModel.js";
 import Table from "./models/TableModel.js";
