@@ -53,14 +53,15 @@ export async function generateAdminJWT(req, res, next ) {
   next()
 }
 
-export function verifyJwt(givenJwt) {
+export function verifyJwt(req, res, next) {
   //complete returns object {payload, header, signature} instead of the only content of the payload
   try{
-    const verifiedJwt = jwt.verify(givenJwt, process.env.JWT_SECRET, {complete: true})
+    const verifiedJwt = jwt.verify(req.headers.jwt, process.env.JWT_SECRET, {complete: true})
     const credentials = JSON.parse(decryptString(verifiedJwt.payload.data))
-    verifyCredentials(credentials)
+    req.credentials = credentials
+    next()
   } catch(e) {
-    throw new Error({error: e.message})
+    res.status(401).send({error: e.message})
   }
 }
 
