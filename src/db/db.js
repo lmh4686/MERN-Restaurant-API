@@ -1,3 +1,5 @@
+import dotenv from 'dotenv'
+dotenv.config({path: '../../.env'})
 import mongoose from "mongoose";
 
 console.log('DB\n' + process.env.DATABASE_URL)
