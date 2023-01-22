@@ -1,4 +1,6 @@
-import mongoose from "mongoose";
+import * as dotenv from 'dotenv'
+dotenv.config()
+
 import { dbConnect, dbClose } from "./db.js";
 import Admin from "./models/AdminModel.js";
 import Table from "./models/TableModel.js";
@@ -13,7 +15,7 @@ await Table.deleteMany()
 console.log('Table deleted')
 await Reservation.deleteMany()
 console.log('Table deleted')
-
+  
 const tables = []
 
 function pushTable(seats, amount) {

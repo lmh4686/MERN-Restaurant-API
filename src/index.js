@@ -1,13 +1,17 @@
+import dotenv from 'dotenv'
+dotenv.config()
+import { dbConnect } from './db/db.js'
 import express from 'express'
 import helmet from 'helmet'
 import cors from 'cors'
-import mongoose from 'mongoose'
-import { dbConnect } from './db/db.js'
 import reservationRoutes from './controllers/ReservationRoutes.js'
+import adminRoute from './controllers/AdminRoute.js'
 
 
+console.log('INDEX \n' + process.env.JWT_SECRET)
 //SETUPS
 const app = express()
+
 
 app.use(helmet())
 app.use(helmet.permittedCrossDomainPolicies())
@@ -31,6 +35,8 @@ app.get('/', (req, res) => {
 })
 
 app.use('/reservation', reservationRoutes)
+
+app.use('/admin', adminRoute)
 
 app.listen(process.env.PORT || 3000, () => console.log('API Connected'))
 
