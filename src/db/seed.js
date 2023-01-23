@@ -1,6 +1,6 @@
 import * as dotenv from 'dotenv'
 dotenv.config()
-
+import { manipulateHours } from '../controllers/ReservationFunction.js';
 import { dbConnect, dbClose } from "./db.js";
 import Admin from "./models/AdminModel.js";
 import Table from "./models/TableModel.js";
@@ -59,11 +59,17 @@ const reservations = [
   "mobile": "3564815",
   "date": new Date("2023-01-30T20:00"),
   "guestNumber": 5
-}}
+}},
+  {table: sixSeaters[3]._id, guest: {
+  "firstName" : "Cooper",
+  "lastName" : "Jason",
+  "mobile": "15615265126",
+  "date": new Date("2023-01-23T09:02"),
+  "guestNumber": 5,
+}, "isConfirmed": true}
 ]
 
 await Reservation.insertMany(reservations)
 console.log('reservations seeded')
-
 
 dbClose()

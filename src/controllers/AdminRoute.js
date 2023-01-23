@@ -1,11 +1,11 @@
 import express from 'express'
-import { validateBasicAuth, verifyCredentials, generateAdminJWT } from "./AdminFunction.js";
+import { validateBasicAuth, generateAdminJWT } from "./AdminFunction.js";
 
 const router = express.Router();
 
 //LOGIN
-router.post('/login', validateBasicAuth, verifyCredentials, generateAdminJWT, async (req, res) => {
-  res.send({jwt: req.headers.jwt})
+router.post('/login', validateBasicAuth, generateAdminJWT, async (req, res) => {
+  res.json({jwt: req.jwt})
 })
 
 export default router

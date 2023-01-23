@@ -10,7 +10,8 @@ const GuestSchema = mongoose.Schema({
 
 const ReservationSchema = mongoose.Schema({
   table: { type: mongoose.Types.ObjectId, ref: "Table" },
-  guest: GuestSchema
+  guest: GuestSchema,
+  isConfirmed: { type: Boolean, default: false }
 })
 
 const Reservation = mongoose.model("Reservation", ReservationSchema)

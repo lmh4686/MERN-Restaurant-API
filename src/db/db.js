@@ -18,4 +18,4 @@ async function dbClose() {
   console.log('DB disconnected')
 }
 
-export { dbConnect, dbClose };
+export { dbConnect, dbClose }

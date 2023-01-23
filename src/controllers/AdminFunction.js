@@ -4,6 +4,7 @@ import crypto from 'crypto';
 import bcrypt from 'bcrypt';
 import jwt from 'jsonwebtoken'
 import Admin from '../db/models/AdminModel.js';
+import { deleteOldReservations } from './ReservationFunction.js';
 
 
 //Encryption config
@@ -49,30 +50,30 @@ export function generateJWT(obj) {
 
 export async function generateAdminJWT(req, res, next ) {
   const encryptedAdminCredentials = encryptString(JSON.stringify(req.credentials))
-  req.headers.jwt = generateJWT({data: encryptedAdminCredentials})
+  req.jwt = generateJWT({data: encryptedAdminCredentials})
   next()
 }
 
-export function verifyJwt(req, res, next) {
+export async function verifyJwt(req, res, next) {
+  deleteOldReservations()
   //complete returns object {payload, header, signature} instead of the only content of the payload
   try{
     const verifiedJwt = jwt.verify(req.headers.jwt, process.env.JWT_SECRET, {complete: true})
     const credentials = JSON.parse(decryptString(verifiedJwt.payload.data))
     req.credentials = credentials
+    await verifyCredentials(credentials)
     next()
   } catch(e) {
-    res.status(401).send({error: e.message})
+    res.status(401).json({error: e.message})
   }
 }
 
-export async function verifyCredentials(req, res, next) {
+async function verifyCredentials(credentials) {
   let adminModel = await Admin.findOne().exec()
   adminModel.username = decryptString(adminModel.username)
   adminModel.password = decryptString(adminModel.password)
-  if (await validateHashedData(req.credentials.username, adminModel.username) && await validateHashedData(req.credentials.password, adminModel.password)) {
-    next()
-  } else {
-    res.status(401).json({error: 'Invalid credentials'})
+  if (! await validateHashedData(credentials.username, adminModel.username) || ! await validateHashedData(credentials.password, adminModel.password)) {
+    throw new Error('Invalid credentials provided in jwt')
   }
 }
 
