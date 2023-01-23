@@ -3,13 +3,14 @@ import { verifyJwt, generateAdminJWT } from './AdminFunction.js' //recently unco
 import { 
   getUnavailableTables, 
   getAvailableTable,
-  updateGuestForm
-} from './ReservationFunction.js'
-import Reservation from '../db/models/ReservationModel.js'
+  updateGuestForm,
+} from './ReservationFunction.js';
+import Reservation from '../db/models/ReservationModel.js';
 
 const router = express.Router()
 const notFoundMsg = {error: 'No reservation found'}
 const populateOption = {path: 'table', select: ['tableNumber', 'seats']}
+
 
 //GET ALL RESERVATIONS
 router.get('/', verifyJwt, generateAdminJWT, async (req, res) => {
@@ -25,8 +26,8 @@ router.post('/', getUnavailableTables, getAvailableTable, async (req, res) => {
   console.log(typeof req.body.date)
   const newBooking = await Reservation.create({
     table: req.availableTableId,
-    guest: req.body
-  })
+    guest: req.body,
+  });
 
   res.status(201).json(await newBooking.populate(populateOption))
 })
@@ -60,9 +61,10 @@ router.put('/:id',
       res.status(400).json({error: 'Wrong ID format provided'})
     }
   }
-)
+);
 
 //DELETE ONE BY ID
+
 router.delete('/:id', verifyJwt, generateAdminJWT, async (req, res) => {
   try{
    const deletedReservation = await Reservation.findByIdAndDelete(req.params.id, {returnDocument: 'after'})
@@ -73,7 +75,6 @@ router.delete('/:id', verifyJwt, generateAdminJWT, async (req, res) => {
   }catch (e) {
     res.status(400).json({error: 'Wrong ID format provided.'})
   }
-})
+);
 
-export default router
-
+export default router;
