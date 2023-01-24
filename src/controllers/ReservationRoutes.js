@@ -49,7 +49,7 @@ router.put('/:id',
     try {
       const updatedReservation = await Reservation.findByIdAndUpdate(
         req.params.id, 
-        { table: req.availableTableId, guest: req.updatedGuestForm}, 
+        { table: req.availableTableId, guest: req.updatedGuestForm, isConfirmed: Boolean(req.updatedGuestForm.isConfirmed)}, 
         {returnDocument: 'after'}
         ).populate(populateOption)
 

@@ -70,8 +70,10 @@ export async function verifyJwt(req, res, next) {
 
 async function verifyCredentials(credentials) {
   let adminModel = await Admin.findOne().exec()
+  
   adminModel.username = decryptString(adminModel.username)
   adminModel.password = decryptString(adminModel.password)
+
   if (! await validateHashedData(credentials.username, adminModel.username) || ! await validateHashedData(credentials.password, adminModel.password)) {
     throw new Error('Invalid credentials provided in jwt')
   }
@@ -79,6 +81,7 @@ async function verifyCredentials(credentials) {
 
 export function validateBasicAuth(req, res, next) {
   let authHeader = req.headers['authorization'] ?? null
+
   if (authHeader == null ) {
     res.status(403).json({error: 'Missing Auth'})
   } 
