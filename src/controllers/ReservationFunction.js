@@ -74,6 +74,7 @@ export async function getAvailableTable(req, res, next) {
 }
 
 export async function updateGuestForm(req, res, next) {
+  console.log(typeof req.body)
   try{
     var existingReservation = await Reservation.findById(req.params.id)
   }catch (e) {
