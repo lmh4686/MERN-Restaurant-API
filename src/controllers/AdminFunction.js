@@ -79,7 +79,7 @@ async function verifyCredentials(credentials) {
   }
 }
 
-export function validateBasicAuth(req, res, next) {
+export async function validateBasicAuth(req, res, next) {
   let authHeader = req.headers['authorization'] ?? null
 
   if (authHeader == null ) {
@@ -94,8 +94,14 @@ export function validateBasicAuth(req, res, next) {
     credentials.password = decodedAuth.substring(decodedAuth.indexOf(":") + 1)
   
     req.credentials = credentials
-    next()
-  } else {
+    try {
+      await verifyCredentials(credentials)
+      next()
+    }catch (e) {
+      res.status(401).json({error: e.message})
+    }
+  } 
+  else {
     res.status(403).json({error: 'Invalid auth type'})
   }
 }
