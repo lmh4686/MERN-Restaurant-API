@@ -71,7 +71,7 @@ router.delete('/:id', verifyJwt, generateAdminJWT, async (req, res) => {
    deletedReservation ? res.json({jwt: req.jwt, deletedReservation}) : res.status(404).json({error: "No reservation found"})
 
   }catch (e) {
-    res.status(400).json({error: e.message})
+    res.status(400).json({error: 'Wrong ID format provided'})
   }
 })
 
