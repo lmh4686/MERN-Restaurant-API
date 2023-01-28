@@ -75,7 +75,7 @@ async function verifyCredentials(credentials) {
   adminModel.password = decryptString(adminModel.password)
 
   if (! await validateHashedData(credentials.username, adminModel.username) || ! await validateHashedData(credentials.password, adminModel.password)) {
-    throw new Error('Invalid credentials provided in jwt')
+    throw new Error('Wrong username or password provided')
   }
 }
 

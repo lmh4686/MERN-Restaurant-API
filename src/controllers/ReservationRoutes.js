@@ -22,7 +22,6 @@ router.get('/', verifyJwt, generateAdminJWT, async (req, res) => {
 //POST
 router.post('/', getUnavailableTables, getAvailableTable, async (req, res) => {
   req.body.date = new Date(req.body.date)
-  console.log(typeof req.body.date)
   const newBooking = await Reservation.create({
     table: req.availableTableId,
     guest: req.body

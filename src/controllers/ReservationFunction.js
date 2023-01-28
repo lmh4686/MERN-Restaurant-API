@@ -1,7 +1,7 @@
 import Reservation from "../db/models/ReservationModel.js";
 import Table from '../db/models/TableModel.js'
 
-//delete export on submit
+
 export function manipulateHours(date, operator, hours) {
   switch (operator) {
     case 'plus':
@@ -25,8 +25,8 @@ export async function getUnavailableTables(req, res, next) {
   bookingInfo.guestNumber = Number(bookingInfo.guestNumber)
 
   const dateFilteredReservations = await Reservation.find({
-    'guest.date': {$lt: manipulateHours(bookingInfo.date, 'plus', 5), 
-                   $gt: manipulateHours(bookingInfo.date, 'minus', 5)}
+    'guest.date': {$lt: manipulateHours(bookingInfo.date, 'plus', 4), 
+                   $gt: manipulateHours(bookingInfo.date, 'minus', 4)}
                   }).populate('table')
 
   if (dateFilteredReservations.length) {
