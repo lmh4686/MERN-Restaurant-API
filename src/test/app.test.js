@@ -4,9 +4,11 @@ import request from 'supertest'
 import app from '../index.js'
 import sameCustomerFilterTestCases from './sameCustomerFilter.js'
 import { numOfSixSeaters, numOfFourSeaters, numOfTwoSeaters, getNewCustomer } from './tableAvailability.js'
+import resetDB from '../db/seed.js'
 
 //  PLEASE RUN FOLLOWING CODE EACH TIME AFTER RUN TEST SCRIPT
 //  node ./src/db/seed.js
+
 
 //Test for correctly accept, refuse booking depending on the table availability
 function tableAvailabilityTest(NumOfTable, requiredSeats) {
@@ -86,10 +88,21 @@ function getAllReservationsTest(condition, jwt, sampleModel) {
       expect(res.statusCode).toBe(200)
       expect(res.body.reservations).toBeDefined()
       expect(res.body.jwt).toBeDefined()
-      sampleModel.id = res.body.reservations[0]._id
+      sampleModel.model = res.body.reservations[0]
     }else {
       expect(res.statusCode).toBe(401)
       expect(res.error).toBeDefined()
+    }
+  })
+}
+
+function updateReservationTest(condition, model, jwt, body) {
+  test(`Update reservation with ${condition}`, async () => {
+    const newBookingInfo = getNewCustomer()
+    const res = await request(app).put(`/reservation/${model._id}`).set({jwt: jwt.value}).send(body)
+    const updatedGuestInfo = res.body.updatedReservation.guest
+    if (condition === "new firstName") {
+      expect(updatedGuestInfo.firstName).toBe(model.guest.firstName)
     }
   })
 }
@@ -101,9 +114,9 @@ describe ('Admin Functions', () => {
   adminLoginTest('Correct ID Incorrect PW', process.env.ADMIN_USERNAME, 'ff')
   adminLoginTest('Incorrect ID and PW', 'aa', 'ff')
 
-  const sampleModel = {id: ''}
+  const sampleModel = {model: ''}
   getAllReservationsTest('correct jwt', jwt, sampleModel)
   getAllReservationsTest('wrong jwt', {value: 'ff'}, sampleModel)
 
-  updateReservationTest()
+  updateReservationTest("new firstname", sampleModel, jwt, {...sampleModel.map(key => key?.guest.firstName = 'Bob')})
 })
