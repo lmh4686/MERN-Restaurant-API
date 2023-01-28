@@ -54,9 +54,9 @@ const reservations = [
   "guestNumber": 5
 }},
   {table: sixSeaters[2]._id, guest: {
-  "firstName" : "Rexy",
-  "lastName" : "Rob",
-  "mobile": "3564815",
+  "firstName" : "Tom",
+  "lastName" : "Lee",
+  "mobile": "35648515",
   "date": new Date("2023-01-30T20:00"),
   "guestNumber": 5
 }},
@@ -64,7 +64,7 @@ const reservations = [
   "firstName" : "Cooper",
   "lastName" : "Jason",
   "mobile": "15615265126",
-  "date": new Date("2023-01-23T09:02"),
+  "date": new Date("2023-02-23T09:02"),
   "guestNumber": 5,
 }, "isConfirmed": true}
 ]

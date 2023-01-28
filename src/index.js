@@ -39,3 +39,4 @@ app.use('/admin', adminRoute)
 
 app.listen(process.env.PORT || 3000, () => console.log('API Connected'))
 
+export default app
