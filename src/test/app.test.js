@@ -19,7 +19,6 @@ function tableAvailabilityTest(NumOfTable, requiredSeats) {
         expect(res.status).toBe(201)
       }else {
         expect(res.status).toBe(406)
-        expect(res.body.error).toBeDefined()
         expect(res.body.error).toBe('No available table found')
       }
     })
@@ -35,10 +34,8 @@ describe('POST Reservation',() => {
       expect(res.status).toBe(testCase.expectedStatus)
 
       if (testCase.expectedStatus === 201 ) {
-        expect(res.body.guest).toBeDefined()
         expect(res.body.guest.firstName).toBe(testCase.guest.firstName)
       }else {
-        expect(res.body.error).toBeDefined()
         expect(res.body.error).toBe('Same guest found!')
       }
     })
@@ -54,16 +51,59 @@ describe('POST Reservation',() => {
       const res = await request(app).post('/reservation').send(customer)
 
       if (i < 3) {
-        expect(res.body.table).toBeDefined()
         expect(res.body.table.seats).toBe(2)
       }else if (i > 2 && i < 5) {
-        expect(res.body.table).toBeDefined()
         expect(res.body.table.seats).toBe(4)
       }else {
-        expect(res.body.table).toBeDefined()
         expect(res.body.table.seats).toBe(6)
       }
     })
   }
   }
 )
+
+
+function adminLoginTest(condition, id, pw, jwt) {
+  test(`Login with ${condition}`, async() => {
+    const encodedCredential = Buffer.from(`${id}:${pw}`).toString('base64')
+    const res = await request(app).post('/admin/login').set('Authorization', `Basic ${encodedCredential}`)
+    if (condition === 'correct ID & PW') {
+      expect(res.statusCode).toBe(200)
+      expect(res.body.jwt).toBeDefined()
+      jwt.value = res.body.jwt
+    }else {
+      expect(res.statusCode).toBe(401)
+      expect(res.body.error).toBe("Wrong username or password provided")
+    }
+  })
+}
+
+function getAllReservationsTest(condition, jwt, sampleModel) {
+  test(`Get All Reservations after passing ${condition}`, async () => {
+    const res = await request(app).get('/reservation').set({jwt: jwt.value})
+
+    if (condition === 'correct jwt') {
+      expect(res.statusCode).toBe(200)
+      expect(res.body.reservations).toBeDefined()
+      expect(res.body.jwt).toBeDefined()
+      sampleModel.id = res.body.reservations[0]._id
+    }else {
+      expect(res.statusCode).toBe(401)
+      expect(res.error).toBeDefined()
+    }
+  })
+}
+
+describe ('Admin Functions', () => {
+  const jwt = {value: ''}
+  adminLoginTest('correct ID & PW', process.env.ADMIN_USERNAME, process.env.ADMIN_PW, jwt)
+  adminLoginTest('Incorrect ID Correct PW', 'aa', process.env.ADMIN_PW, jwt)
+  adminLoginTest('Correct ID Incorrect PW', process.env.ADMIN_USERNAME, 'ff')
+  adminLoginTest('Incorrect ID and PW', 'aa', 'ff')
+
+  const sampleModel = {id: ''}
+  getAllReservationsTest('correct jwt', jwt, sampleModel)
+  getAllReservationsTest('wrong jwt', {value: 'ff'}, sampleModel)
+
+  updateReservationTest()
+})
