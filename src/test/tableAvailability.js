@@ -14,14 +14,14 @@ export const numOfTwoSeaters = allTables.filter(tbl => tbl.seats === 2).length
 export const numOfFourSeaters = allTables.filter(tbl => tbl.seats === 4).length
 export const numOfSixSeaters = allTables.filter(tbl => tbl.seats === 6).length
 
-export function getNewCustomer(guestNumber, tableAssignmentTest=false) {
+export function getNewCustomer(guestNumber, assignNewDate=false) {
   const customer = {...mockCustomer};
   customer.mobile = String(Math.floor(Math.random() * 10000000000))
   customer.guestNumber = guestNumber
   
-  if (tableAssignmentTest) {
+  if (assignNewDate) {
    customer.date = "2023-03-07T12:00"
   }
-  
+
   return customer
 }
