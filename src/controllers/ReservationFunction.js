@@ -32,22 +32,20 @@ export async function getUnavailableTables(req, res, next) {
   if (dateFilteredReservations.length) {
     const duplicateReservation = req?.updatedGuestForm ? null : findDuplicateReservation(bookingInfo, dateFilteredReservations)
     if (duplicateReservation) {
-      res.status(409).json({error: `Same guest found!`})
+      return res.status(409).json({error: `Same guest found!`})
     }
-    else {
-      const unavailableTables = dateFilteredReservations.filter(reservation => 
-        reservation.guest.date < manipulateHours(bookingInfo.date, 'plus', 1.5) &&
-        reservation.guest.date > manipulateHours(bookingInfo.date, 'minus', 1.5) 
-        ).filter(reservation => 
-          reservation.table.seats === bookingInfo.guestNumber || 
-          reservation.table.seats === bookingInfo.guestNumber + 1
-          ).map(reservation => reservation.table)
-      req.unavailableTables = unavailableTables
-      next()
-    } 
-  }else{
-    next()
+
+    const unavailableTables = dateFilteredReservations.filter(reservation => 
+      reservation.guest.date < manipulateHours(bookingInfo.date, 'plus', 1.5) &&
+      reservation.guest.date > manipulateHours(bookingInfo.date, 'minus', 1.5) 
+      ).filter(reservation => 
+        reservation.table.seats === bookingInfo.guestNumber || 
+        reservation.table.seats === bookingInfo.guestNumber + 1
+        ).map(reservation => reservation.table)
+
+    req.unavailableTables = unavailableTables
   }
+  next()
 }
 
 export async function getAvailableTable(req, res, next) {
@@ -58,23 +56,21 @@ export async function getAvailableTable(req, res, next) {
     req.availableTableId = allTables.find(
       table => table.seats === req.body.guestNumber || table.seats === req.body.guestNumber + 1
       )._id
-    next()
+    return next()
+  }
+  const seatFilteredTables = await Table.find({seats: req.unavailableTables[0].seats})
+  const availableTable = seatFilteredTables.find(table => 
+    !req.unavailableTables.map(unavailableTable => unavailableTable.tableNumber).includes(table.tableNumber))
+  
+  if (!availableTable) {
+    res.status(406).json({error: 'No available table found'})
   }else {
-    const seatFilteredTables = await Table.find({seats: req.unavailableTables[0].seats})
-    const availableTable = seatFilteredTables.find(table => 
-      !req.unavailableTables.map(unavailableTable => unavailableTable.tableNumber).includes(table.tableNumber))
-    
-    if (!availableTable) {
-      res.status(406).json({error: 'No available table found'})
-    }else {
-    req.availableTableId = availableTable._id
-    next()
-    }
+  req.availableTableId = availableTable._id
+  next()
   }
 }
 
 export async function updateGuestForm(req, res, next) {
-  console.log(typeof req.body)
   try{
     var existingReservation = await Reservation.findById(req.params.id)
   }catch (e) {

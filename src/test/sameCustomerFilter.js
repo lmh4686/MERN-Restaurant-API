@@ -21,32 +21,33 @@ function manipulateCustomerDate(customer, operator, hr) {
 
 
 const sameCustomerFilterTestCases = [
-  //New booking on date that has no reservation
   {
+    condition: `New booking on date that has no reservation
+    => Post reservation`,
     expectedStatus: 201,
     guest: mockCustomer
   },
-  //Same customer book again with new date value that has less than 4hr difference from the previous one.
-  //plus 3hr
   {
+    condition: `Same customer book again with new date value that has less than 4hr difference from the previous one. +3hr
+    => Return error`,
     expectedStatus: 409,
     guest: manipulateCustomerDate({...mockCustomer},'plus', 3)
   },
-  //Same customer book again with new date value that has less than 4hr difference from the previous one.
-  //minus 3hr
   {
+    condition: `Same customer book again with new date value that has less than 4hr difference from the previous one. -3hr
+    => Return error`,
     expectedStatus: 409,
     guest: manipulateCustomerDate({...mockCustomer},'minus', 3)
   },
-  //Same customer book again with new date value that has more than 4hr difference from the previous one
-  //plus 5hr
   {
+    condition: `Same customer book again with new date value that has more than 4hr difference from the previous one +5hr
+    => Post reservation`,
     expectedStatus: 201,
     guest: manipulateCustomerDate({...mockCustomer},'plus', 5)
   },
-  //Same customer book again with new date value that has more than 4hr difference from the previous one
-  //minus 5hr
   {
+    condition: `Same customer book again with new date value that has more than 4hr difference from the previous one -5hr
+    => Post reservation`,
     expectedStatus: 201,
     guest: manipulateCustomerDate({...mockCustomer},'minus', 5)
   }
