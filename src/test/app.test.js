@@ -6,9 +6,10 @@ import sameCustomerFilterTestCases from './sameCustomerFilter.js'
 import { numOfSixSeaters, numOfFourSeaters, numOfTwoSeaters, getNewCustomer } from './tableAvailability.js'
 import { getUnavailableTables, isReallyFull } from './updateReservation.js'
 
-//  PLEASE RUN FOLLOWING CODE EACH TIME AFTER RUN TEST SCRIPT
-//  node ./src/db/seed.js
-
+/////////////////////////////////////////////////////////////////
+//  PLEASE RUN FOLLOWING CODE EACH TIME AFTER RUN TEST SCRIPT //
+//  node ./src/db/seed.js                                     //
+////////////////////////////////////////////////////////////////
 
 //Test for correctly accept, refuse booking depending on the table availability
 function tableAvailabilityTest(NumOfTable, requiredSeats) {
