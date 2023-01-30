@@ -11,6 +11,19 @@ import { getUnavailableTables, isReallyFull } from './updateReservation.js'
 //  node ./src/db/seed.js                                     //
 ////////////////////////////////////////////////////////////////
 
+const commonErrorCase = (res, statusCode, errMsg=false) => {
+  expect(res.status).toBe(statusCode)
+  errMsg ?? expect(res.body.error).toBeDefined()
+  expect(Object.keys(res.body).length).toBe(1)
+  errMsg && expect(res.body.error).toBe(errMsg)
+}
+
+const commonTwoHundredStatusCodeCase = (res, targetId=false, sampleModel=false) => {
+  expect(res.status).toBe(200)
+  expect(res.body.jwt).toBeDefined()
+  targetId && sampleModel && expect(targetId).toEqual(sampleModel.reservation._id)
+}
+
 //Test for correctly accept, refuse booking depending on the table availability
 function tableAvailabilityTest(NumOfTable, requiredSeats) {
   for (let i = 0; i < NumOfTable + 1; i++) {
@@ -30,9 +43,7 @@ function tableAvailabilityTest(NumOfTable, requiredSeats) {
       }else {
         //Make sure this only happens when table is fully booked. i+1 = number of table booked.
         expect(i+1 > NumOfTable).toBe(true)
-        expect(res.status).toBe(406)
-        expect(res.body.error).toBe('No available table found')
-        expect(Object.keys(res.body).length).toEqual(1)
+        commonErrorCase(res, 406)
       }
     })
   }
@@ -54,9 +65,7 @@ describe('POST Reservation',() => {
         delete testCase.guest.date
         expect(res.body.guest).toEqual(testCase.guest)
       }else {
-        expect(res.statusCode).toBe(409)
-        expect(res.body.error).toBe('Same guest found!')
-        expect(Object.keys(res.body).length).toEqual(1)
+        commonErrorCase(res, 409, 'Same guest found!')
       }
     })
   }
@@ -89,13 +98,10 @@ function adminLoginTest(condition, result, id, pw, jwt) {
     const encodedCredential = Buffer.from(`${id}:${pw}`).toString('base64')
     const res = await request(app).post('/admin/login').set('Authorization', `Basic ${encodedCredential}`)
     if (condition === 'correct ID & PW') {
-      expect(res.statusCode).toBe(200)
-      expect(res.body.jwt).toBeDefined()
+      commonTwoHundredStatusCodeCase(res)
       jwt.value = res.body.jwt
     }else {
-      expect(res.statusCode).toBe(401)
-      expect(res.body.error).toBe("Wrong username or password provided")
-      expect(Object.keys(res.body).length).toBe(1)
+      commonErrorCase(res, 401)
     }
   })
 }
@@ -106,14 +112,11 @@ function getAllReservationsTest(condition, result, jwt, sampleModel) {
     const res = await request(app).get('/reservation').set({jwt: jwt.value})
 
     if (condition === 'correct jwt') {
-      expect(res.statusCode).toBe(200)
+      commonTwoHundredStatusCodeCase(res)
       expect(res.body.reservations).toBeDefined()
-      expect(res.body.jwt).toBeDefined()
       sampleModel.reservation = res.body.reservations[0]
     }else {
-      expect(res.statusCode).toBe(401)
-      expect(res.error).toBeDefined()
-      expect(Object.keys(res.body).length).toBe(1)
+      commonErrorCase(res, 401)
     }
   })
 }
@@ -130,25 +133,20 @@ function updateReservationTest(condition, result, jwt, originalModel, fieldsToUp
                     : await request(app).put(`/reservation/${originalModel.reservation._id}`).send(updatedGuestForm)
 
     if (condition === "passing incorrect _ID") {
-      expect(res.statusCode).toBe(400)
-      expect(res.body.error).toBeDefined()
-      expect(Object.keys(res.body).length).toBe(1)
+      commonErrorCase(res, 400, 'Wrong type of ID provided')
       return
     }
 
     if(!jwt || condition === "passing wrong JWT") {
-      expect(res.status).toBe(401)
-      expect(res.body.error).toBeDefined()
-      expect(Object.keys(res.body).length).toBe(1)
+      commonErrorCase(res, 401)
       return
     }
 
     if (res.body.error === 'No available table found') {
       expect(condition).toBe("changing date to the time when reservation is full")
-      expect(res.statusCode).toBe(406)
+      commonErrorCase(res, 406)
       const unavailableTables = await getUnavailableTables(new Date(updatedGuestForm.date), updatedGuestForm.guestNumber)
       expect(isReallyFull(unavailableTables)).toBe(true)
-      expect(Object.keys(res.body).length).toBe(1)
       return
     }
 
@@ -164,8 +162,7 @@ function updateReservationTest(condition, result, jwt, originalModel, fieldsToUp
       expect(responseReservation.table).toEqual(originalModel.reservation.table)
     }
 
-    expect(res.body.jwt).toBeDefined()
-    expect(responseReservation._id).toBe(originalModel.reservation._id)
+    commonTwoHundredStatusCodeCase(res, responseReservation._id, originalModel)
 
     expect(new Date(responseReservation.guest.date).toLocaleString()).toBe(new Date(updatedGuestForm.date).toLocaleString())
     delete responseReservation.guest.date
@@ -181,25 +178,41 @@ function deleteReservationTest(condition, result, jwt, sampleModel) {
                     : await request(app).delete(`/reservation/${sampleModel.reservation._id}`).send()
 
     if(!jwt || condition === "passing wrong JWT") {
-      expect(res.status).toBe(401)
-      expect(res.body.error).toBeDefined()
-      expect(Object.keys(res.body).length).toBe(1)
+      commonErrorCase(res, 401)
       return
     }
 
     if (condition === "passing incorrect _ID") {
-      expect(res.statusCode).toBe(400)
-      expect(res.body.error).toBeDefined()
-      expect(Object.keys(res.body).length).toBe(1)
+      commonErrorCase(res, 400, 'Wrong type of ID provided')
       return
     }
 
-    expect(condition === "passing correct JWT and ID")
-    expect(res.status).toBe(200)
-    expect(res.body.jwt).toBeDefined()
-    expect(res.body.deletedReservation._id).toEqual(sampleModel.reservation._id)
+    commonTwoHundredStatusCodeCase(res, res.body.deletedReservation._id, sampleModel)
   })
 }
+
+function getReservationsByMobileNumberTest(condition, result, jwt, sampleModel) {
+  test(`Get reservations by mobile number by ${condition}
+  => ${result}`, async () => {
+    const res = jwt ? await request(app).get(`/reservation/${sampleModel.reservation.guest.mobile}`).set({jwt: jwt.value})
+                    : await request(app).get(`/reservation/${sampleModel.reservation.guest.mobile}`).send()
+
+    if (!jwt || condition === "passing wrong JWT") {
+      commonErrorCase(res, 401)
+      return
+    }
+
+    if (condition === "passing incorrect mobile") {
+      commonErrorCase(res, 404, 'No reservation found')
+      return
+    }
+
+    commonTwoHundredStatusCodeCase(res)
+    res.body.reservations.forEach(reservation => expect(reservation.guest.mobile).toEqual(sampleModel.reservation.guest.mobile))
+  })
+}
+
+
 
 describe ('Admin Functions', () => {
   const jwt = {value: ''}
@@ -211,6 +224,10 @@ describe ('Admin Functions', () => {
   const sampleModel = {reservation: ''}
   getAllReservationsTest('correct jwt', 'Get all reservations',jwt, sampleModel)
   getAllReservationsTest('wrong jwt', 'Return error', {value: 'ff'}, sampleModel)
+  
+  getReservationsByMobileNumberTest('passing wrong JWT', 'Return error', {value: 'ff'}, sampleModel)
+  getReservationsByMobileNumberTest('passing incorrect mobile', 'Return error', jwt, {reservation: {guest: {mobile: '2345678952'}}})
+  getReservationsByMobileNumberTest('passing correct jwt and mobile number', 'Find matched mobile value document(s)', jwt, sampleModel)
 
   updateReservationTest(
     "passing incorrect _ID", 'Return error',
